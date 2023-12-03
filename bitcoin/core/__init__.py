@@ -540,6 +540,20 @@ class CBlockHeader(ImmutableSerializable):
         nTime = struct.unpack(b"<I", ser_read(f,4))[0]
         nBits = struct.unpack(b"<I", ser_read(f,4))[0]
         nNonce = struct.unpack(b"<I", ser_read(f,4))[0]
+        if nVersion & (1 << 8): #auxpow
+            tx = CTransaction.stream_deserialize(f)
+            hashBlock = ser_read(f,32)
+            vMerkleBranch = uint256VectorSerializer.stream_deserialize(f)
+            nIndex = struct.unpack(b"<i",ser_read(f,4))[0]
+            vChainMerkleBranch = uint256VectorSerializer.stream_deserialize(f)
+            nChainIndex = struct.unpack(b"<i",ser_read(f,4))[0]
+            nVersionParent = struct.unpack(b"<i", ser_read(f,4))[0]
+            hashPrevBlockParent = ser_read(f,32)
+            hashMerkleRootParent = ser_read(f,32)
+            nTimeParent = struct.unpack(b"<I", ser_read(f,4))[0]
+            nBitsParent = struct.unpack(b"<I", ser_read(f,4))[0]
+            nNonceParent = struct.unpack(b"<I", ser_read(f,4))[0]
+            
         return cls(nVersion, hashPrevBlock, hashMerkleRoot, nTime, nBits, nNonce)
 
     def stream_serialize(self, f):

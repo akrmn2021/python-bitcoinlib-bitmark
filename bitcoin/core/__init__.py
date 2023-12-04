@@ -537,9 +537,16 @@ class CBlockHeader(ImmutableSerializable):
         nVersion = struct.unpack(b"<i", ser_read(f,4))[0]
         hashPrevBlock = ser_read(f,32)
         hashMerkleRoot = ser_read(f,32)
+        if nVersion & (7 << 9) == (6 << 9): #equihash
+            hashReserved = ser_read(f,32)
         nTime = struct.unpack(b"<I", ser_read(f,4))[0]
         nBits = struct.unpack(b"<I", ser_read(f,4))[0]
-        nNonce = struct.unpack(b"<I", ser_read(f,4))[0]
+        if nVersion & (7 << 9) == (6 << 9): #equihash
+            nNonce256 = ser_read(f,32)
+            nSolutionSizeEncoding = ser_read(f,3)
+            nSolution = ser_read(f,1344)
+        else:
+            nNonce = struct.unpack(b"<I", ser_read(f,4))[0]
         if nVersion & (1 << 8): #auxpow
             tx = CTransaction.stream_deserialize(f)
             hashBlock = ser_read(f,32)
